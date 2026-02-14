@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Golpea a Kris 🌙</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:radial-gradient(ellipse at top,#0b0c1c,#1b1c3b);
+  color:white;
+  overflow:hidden;
+  height:100vh;
+  position:relative;
+}
+
+#gameContainer{
+  position:relative;
+  width:100%;
+  height:100%;
+  text-align:center;
+  padding-top:40px;
+  z-index:1;
+}
+
+h1{
+  font-size:2.5em;
+  color:#f0e68c;
+  text-shadow:2px 2px 8px #000;
+}
+
+button{
+  padding:12px 25px;
+  border:none;
+  border-radius:12px;
+  background:#ffd700;
+  color:#333;
+  font-weight:bold;
+  font-size:1.1em;
+  cursor:pointer;
+  margin:10px;
+}
+
+#scoreBoard,#timer{
+  position:fixed;
+  top:20px;
+  padding:10px 15px;
+  background:rgba(255,255,255,.1);
+  border-radius:10px;
+  font-family:'Press Start 2P',cursive;
+  font-size:1em;
+  display:none;
+  z-index:5;
+}
+
+#scoreBoard{ left:20px; }
+#timer{ right:20px; }
+
+.face{
+  position:absolute;
+  width:150px;
+  height:150px;
+  cursor:pointer;
+  transition:transform .2s;
+  border-radius:50%;
+  z-index:3;
+}
+
+#pauseBtn{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  display:none;
+  z-index:5;
+}
+
+#pauseMenu,#endMenu{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(20,20,50,.95);
+  border-radius:15px;
+  padding:30px;
+  display:none;
+  text-align:center;
+  z-index:6;
+}
+
+#pauseMenu button,#endMenu button{
+  display:block;
+  margin:15px auto;
+}
+
+#endImage{
+  width:150px;
+  margin:20px auto;
+  display:block;
+}
+
+#endPhrase{
+  font-family:'Press Start 2P',cursive;
+  color:#ffeb3b;
+  margin:15px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div id="gameContainer">
+  <h1>Golpea a la ratilla de kris 🌙</h1>
+  <p>¿Me puedes ganar bot?</p>
+  <button id="startBtn">Empezar</button>
+</div>
+
+<div id="scoreBoard">Puntos: 0</div>
+<div id="timer">45</div>
+<button id="pauseBtn">Pausa</button>
+
+<div id="pauseMenu">
+  <h2>Pausa</h2>
+  <button id="resumeBtn">Reanudar</button>
+  <button id="restartBtn">Reiniciar</button>
+  <button id="menuBtn">Volver al menú</button>
+</div>
+
+<div id="endMenu">
+  <h2>¡Tiempo terminado!</h2>
+  <img id="endImage" src="Imagenes/topo.png">
+  <p id="endPhrase">¡Atrapaste al topo!</p>
+  <p id="finalScore"></p>
+  <button id="playAgainBtn">Volver a jugar</button>
+  <button id="exitBtn">Salir al menú</button>
+</div>
+
+<script>
+const startBtn=document.getElementById("startBtn");
+const scoreBoard=document.getElementById("scoreBoard");
+const timerEl=document.getElementById("timer");
+const pauseBtn=document.getElementById("pauseBtn");
+const pauseMenu=document.getElementById("pauseMenu");
+const resumeBtn=document.getElementById("resumeBtn");
+const restartBtn=document.getElementById("restartBtn");
+const menuBtn=document.getElementById("menuBtn");
+const endMenu=document.getElementById("endMenu");
+const finalScore=document.getElementById("finalScore");
+const playAgainBtn=document.getElementById("playAgainBtn");
+const exitBtn=document.getElementById("exitBtn");
+
+let score=0;
+let time=45;
+let gameInterval;
+let spawnInterval;
+let moveInterval;
+let isPaused=false;
+let speedMultiplier=1;
+
+/* 🌙 Fondo estrellas */
+for(let i=0;i<120;i++){
+  const star=document.createElement("div");
+  star.style.position="absolute";
+  star.style.width=Math.random()*3+1+"px";
+  star.style.height=star.style.width;
+  star.style.background="white";
+  star.style.borderRadius="50%";
+  star.style.top=Math.random()*100+"vh";
+  star.style.left=Math.random()*100+"vw";
+  star.style.opacity=Math.random();
+  star.style.zIndex="0";
+  document.body.appendChild(star);
+}
+
+/* 🌕 Lunas */
+for(let i=0;i<5;i++){
+  const moon=document.createElement("div");
+  const size=40+Math.random()*60;
+  moon.style.position="absolute";
+  moon.style.width=size+"px";
+  moon.style.height=size+"px";
+  moon.style.borderRadius="50%";
+  moon.style.background="radial-gradient(circle,#f0f0f5,#a0a0c0)";
+  moon.style.boxShadow="0 0 30px rgba(240,240,245,.6)";
+  moon.style.top=Math.random()*70+10+"vh";
+  moon.style.left=Math.random()*80+10+"vw";
+  moon.style.zIndex="0";
+  document.body.appendChild(moon);
+}
+
+/* Texto flotante */
+function showFloatingText(text,x,y,color){
+  const float=document.createElement("div");
+  float.innerText=text;
+  float.style.position="absolute";
+  float.style.left=x+"px";
+  float.style.top=y+"px";
+  float.style.color=color;
+  float.style.fontWeight="bold";
+  float.style.fontSize="20px";
+  float.style.zIndex="10";
+  float.style.transition="all 0.8s ease-out";
+  document.body.appendChild(float);
+
+  setTimeout(()=>{
+    float.style.top=(y-40)+"px";
+    float.style.opacity="0";
+  },10);
+
+  setTimeout(()=>float.remove(),800);
+}
+
+/* Crear personaje */
+function createCharacter(){
+
+  const isBomb=Math.random()<0.15;
+
+  const char=document.createElement("img");
+  char.className="face";
+  char.src=isBomb?"Imagenes/krismalo.jpg":"Imagenes/kris.png";
+
+  char.style.left=Math.random()*(window.innerWidth-150)+"px";
+  char.style.top=Math.random()*(window.innerHeight-150)+"px";
+
+  char.dataset.dx=(Math.random()*2-1)*0.9;
+  char.dataset.dy=(Math.random()*2-1)*0.9;
+
+  document.body.appendChild(char);
+
+  const disappear=setTimeout(()=>char.remove(),1400);
+
+  char.addEventListener("click",()=>{
+
+    clearTimeout(disappear);
+
+    const centerX=char.offsetLeft+75;
+    const centerY=char.offsetTop;
+
+    if(isBomb){
+      score=Math.max(0,score-2);
+      scoreBoard.innerText="Puntos: "+score;
+      showFloatingText("-2",centerX,centerY,"red");
+      char.style.transform="scale(0.7) rotate(15deg)";
+      setTimeout(()=>char.remove(),600);
+    }else{
+      score++;
+      scoreBoard.innerText="Puntos: "+score;
+      showFloatingText("+1",centerX,centerY,"#00ff88");
+      char.style.transform="scaleX(1.3) scaleY(0.6)";
+      setTimeout(()=>char.remove(),2200);
+    }
+  });
+}
+
+function moveCharacters(){
+  document.querySelectorAll(".face").forEach(char=>{
+    let x=char.offsetLeft;
+    let y=char.offsetTop;
+    let dx=parseFloat(char.dataset.dx);
+    let dy=parseFloat(char.dataset.dy);
+
+    x+=dx*speedMultiplier;
+    y+=dy*speedMultiplier;
+
+    if(x<=0||x>=window.innerWidth-150){dx*=-1;char.dataset.dx=dx;}
+    if(y<=0||y>=window.innerHeight-150){dy*=-1;char.dataset.dy=dy;}
+
+    char.style.left=x+"px";
+    char.style.top=y+"px";
+  });
+}
+
+function startGame(){
+  document.getElementById("gameContainer").style.display="none";
+  scoreBoard.style.display="block";
+  timerEl.style.display="block";
+  pauseBtn.style.display="block";
+
+  score=0;
+  time=45;
+  speedMultiplier=1;
+
+  scoreBoard.innerText="Puntos: 0";
+  timerEl.innerText=time;
+  isPaused=false;
+
+  spawnInterval=setInterval(()=>{
+    if(!isPaused) createCharacter();
+  },250);
+
+  moveInterval=setInterval(()=>{
+    if(!isPaused) moveCharacters();
+  },16);
+
+  gameInterval=setInterval(()=>{
+    if(!isPaused){
+      time--;
+      timerEl.innerText=time;
+      if(time<=10) speedMultiplier=2.5;
+      if(time<=0) endGame();
+    }
+  },1000);
+}
+
+function endGame(){
+  clearInterval(gameInterval);
+  clearInterval(spawnInterval);
+  clearInterval(moveInterval);
+  document.querySelectorAll(".face").forEach(f=>f.remove());
+  pauseBtn.style.display="none";
+  scoreBoard.style.display="none";
+  timerEl.style.display="none";
+  finalScore.innerText="Tu puntaje: "+score;
+  endMenu.style.display="block";
+}
+
+startBtn.onclick=startGame;
+pauseBtn.onclick=()=>{isPaused=true;pauseMenu.style.display="block";};
+resumeBtn.onclick=()=>{isPaused=false;pauseMenu.style.display="none";};
+restartBtn.onclick=()=>{pauseMenu.style.display="none";startGame();};
+menuBtn.onclick=()=>window.location.href="juego.html";
+playAgainBtn.onclick=()=>{endMenu.style.display="none";startGame();};
+exitBtn.onclick=()=>window.location.href="juego.html";
+
+</script>
+</body>
+</html>

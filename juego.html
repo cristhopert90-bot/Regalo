@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mini Juegos de Lunita 🌙</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    margin: 0;
+    font-family: 'Quicksand', sans-serif;
+    background: radial-gradient(ellipse at top, #0b0c1c, #1b1c3b);
+    color: white;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* Fondo estrellas */
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s infinite ease-in-out;
+    opacity: 0.8;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* Lunas */
+  .moon {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, #f5f5ff, #a9a9d6);
+    box-shadow: 0 0 35px rgba(240,240,255,0.6);
+    animation: float 8s ease-in-out infinite;
+    opacity: 0.9;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* Contenedor principal */
+  #gameContainer {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Tarjeta glass */
+  .card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    animation: fadeIn 1.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8em;
+    color: #f5e9a6;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(255,215,0,0.4);
+  }
+
+  p {
+    font-size: 1.15em;
+    line-height: 1.6;
+    color: #e0e0ff;
+    margin-bottom: 25px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  button {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ffd700, #ffb700);
+    color: #2a2a2a;
+    font-weight: 600;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(255,215,0,0.3);
+  }
+
+  button:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 25px rgba(255,215,0,0.8);
+  }
+
+  .back {
+    background: linear-gradient(135deg, #9aa0ff, #6b70ff);
+    color: white;
+    box-shadow: 0 5px 20px rgba(155,160,255,0.4);
+  }
+</style>
+</head>
+
+<body>
+
+<div id="gameContainer">
+  <div class="card">
+    <h1>Tus Juegos 🌙</h1>
+
+    <p>
+      Bienvenida a tus mini juegos mi lunita ✨  
+          </p>
+
+    <p>Elige un juego cariño</p>
+
+    <div class="buttons">
+      <button id="startBtn">🌟 Golpea a Kris</button>
+      <button id="game2Btn">🌙 Sudoku</button>
+      <button id="backToCard" class="back">⬅ Volver a la carta</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const startBtn = document.getElementById('startBtn');
+const game2Btn = document.getElementById('game2Btn');
+const backToCard = document.getElementById('backToCard');
+
+startBtn.onclick = () => window.location.href = 'golpea_kris.html';
+game2Btn.onclick = () => window.location.href = 'sudoku.html';
+backToCard.onclick = () => window.location.href = 'index.html';
+
+/* Estrellas */
+for(let i=0;i<120;i++){
+  const star = document.createElement('div');
+  star.className = 'star';
+  const size = Math.random()*3 + 1;
+  star.style.width = size+'px';
+  star.style.height = size+'px';
+  star.style.top = Math.random()*100+'vh';
+  star.style.left = Math.random()*100+'vw';
+  star.style.animationDuration = (Math.random()*3 + 2)+'s';
+  document.body.appendChild(star);
+}
+
+/* Lunas */
+for(let i=0;i<6;i++){
+  const moon = document.createElement('div');
+  moon.className='moon';
+  const size = 40 + Math.random()*80;
+  moon.style.width = size+'px';
+  moon.style.height = size+'px';
+  moon.style.top = Math.random()*70+'vh';
+  moon.style.left = Math.random()*90+'vw';
+  moon.style.animationDuration = (6 + Math.random()*6)+'s';
+  document.body.appendChild(moon);
+}
+</script>
+
+</body>
+</html>

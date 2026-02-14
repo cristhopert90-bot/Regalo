@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sudoku de mi Lunita 🌙</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #070818, #14152e);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  color: white;
+  overflow: hidden;
+}
+
+/* TRANSICIONES */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(.96);
+  pointer-events: none;
+  transition: opacity .6s ease, transform .6s ease;
+}
+.screen.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: all;
+}
+
+/* SCROLL SOLO NIVEL 2 */
+#lvl2 {
+  overflow-y: auto;
+  justify-content: flex-start;
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+h1 {
+  color: #f5e99f;
+  text-shadow: 0 0 12px rgba(255,240,180,.6);
+}
+
+.subtitle {
+  max-width: 320px;
+  text-align: center;
+  opacity: .85;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  margin: 20px auto;
+}
+
+.cell {
+  border-radius: 16px;
+  background: rgba(255,255,255,.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.cell:hover { transform: scale(1.08); }
+.fixed {
+  background: rgba(255,255,255,.25);
+  cursor: default;
+}
+
+.small {
+  font-size: .55em;
+  opacity: .7;
+  margin-top: -4px;
+}
+
+.btn {
+  margin: 10px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 18px;
+  background: #ffd700;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+/* VICTORIA */
+#win {
+  background: radial-gradient(circle, rgba(255,245,200,.25), rgba(0,0,0,.9));
+  z-index: 10;
+}
+
+#moon {
+  font-size: 9em;
+  animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 25px rgba(255,240,200,.5); }
+  to { text-shadow: 0 0 80px rgba(255,240,200,1); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🎶 MUSICA -->
+<audio id="music" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/10/30/audio_1c5c7e0bda.mp3" type="audio/mpeg">
+</audio>
+
+<!-- MENÚ -->
+<div id="menu" class="screen active">
+  <h1>🌙 Sudoku de mi Lunita</h1>
+  <div class="subtitle">
+    sé que te gustan mucho los sudokus así k hice uno de lunitas jiji 💛
+  </div>
+  <button class="btn" onclick="start(1)">🌙 Nivel 1</button>
+  <button class="btn" onclick="start(2)">🌙 Nivel 2</button>
+  <button class="btn" onclick="goSala()">🚪 Regresar a la sala</button>
+</div>
+
+<!-- NIVEL 1 -->
+<div id="lvl1" class="screen">
+  <h1>🌙 Nivel 1</h1>
+  <button class="btn" onclick="menu()">🔙 Menú</button>
+  <div id="g4" class="grid" style="grid-template-columns:repeat(4,72px)"></div>
+</div>
+
+<!-- NIVEL 2 -->
+<div id="lvl2" class="screen">
+  <h1>🌙 Nivel 2</h1>
+  <button class="btn" onclick="menu()">🔙 Menú</button>
+  <div id="g9" class="grid" style="grid-template-columns:repeat(9,46px); margin-bottom:40px"></div>
+</div>
+
+<!-- VICTORIA -->
+<div id="win" class="screen">
+  <div id="moon">🌕</div>
+  <div id="winText" style="margin:15px;font-size:1.3em"></div>
+  <button class="btn" id="nextBtn">Continuar</button>
+</div>
+
+<script>
+const music = document.getElementById("music");
+
+function show(id){
+  document.querySelectorAll(".screen")
+    .forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function start(n){
+  music.play();
+  show("lvl"+n);
+}
+
+function menu(){ show("menu"); }
+
+function goSala(){
+  window.location.href = "juego.html";
+}
+/* ========= NIVEL 1 ========= */
+const SYM4=["🌑","🌒","🌓","🌔"];
+const SOL4=[
+ [0,1,2,3],
+ [2,3,0,1],
+ [1,0,3,2],
+ [3,2,1,0]
+];
+const START4=[
+ [null,null,2,null],
+ [null,null,null,1],
+ [1,null,null,null],
+ [null,2,null,null]
+];
+
+let c4=[],g4=document.getElementById("g4");
+START4.flat().forEach((v,i)=>{
+  let d=document.createElement("div");
+  d.className="cell"; d.style.width=d.style.height="72px";
+  if(v!==null){
+    d.textContent=SYM4[v];
+    d.classList.add("fixed");
+    c4[i]=v;
+  } else {
+    c4[i]=null;
+    d.onclick=()=>{
+      c4[i]=c4[i]===null?0:(c4[i]+1)%4;
+      d.textContent=SYM4[c4[i]];
+      check4();
+    }
+  }
+  g4.appendChild(d);
+});
+
+function check4(){
+  for(let r=0;r<4;r++)
+    for(let c=0;c<4;c++)
+      if(c4[r*4+c]!==SOL4[r][c]) return;
+  win("Que pro eres mi amor jiji 💛",2);
+}
+
+/* ========= NIVEL 2 ========= */
+const SYM9=["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘","🌙"];
+const SOL9=[
+ [0,1,2,3,4,5,6,7,8],
+ [3,4,5,6,7,8,0,1,2],
+ [6,7,8,0,1,2,3,4,5],
+ [1,2,3,4,5,6,7,8,0],
+ [4,5,6,7,8,0,1,2,3],
+ [7,8,0,1,2,3,4,5,6],
+ [2,3,4,5,6,7,8,0,1],
+ [5,6,7,8,0,1,2,3,4],
+ [8,0,1,2,3,4,5,6,7]
+];
+
+let c9=[],g9=document.getElementById("g9");
+SOL9.flat().forEach((v,i)=>{
+  let d=document.createElement("div");
+  d.className="cell"; d.style.width=d.style.height="46px";
+  if(Math.random()<0.45){
+    d.innerHTML=`${SYM9[v]}<div class="small">${v+1}</div>`;
+    d.classList.add("fixed");
+    c9[i]=v;
+  } else {
+    c9[i]=null;
+    d.onclick=()=>{
+      c9[i]=c9[i]===null?0:(c9[i]+1)%9;
+      d.innerHTML=`${SYM9[c9[i]]}<div class="small">${c9[i]+1}</div>`;
+      check9();
+    }
+  }
+  g9.appendChild(d);
+});
+
+function check9(){
+  for(let r=0;r<9;r++)
+    for(let c=0;c<9;c++)
+      if(c9[r*9+c]!==SOL9[r][c]) return;
+  win("Nivel maestro completado 🌙💛",0);
+}
+
+/* ========= VICTORIA ========= */
+function win(text,next){
+  document.getElementById("winText").textContent=text;
+  show("win");
+  document.getElementById("nextBtn").onclick=()=>{
+    next?show("lvl"+next):menu();
+  };
+}
+</script>
+
+</body>
+</html>
