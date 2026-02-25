@@ -114,11 +114,6 @@ h1 {
 
 <body>
 
-<!-- 🎶 MUSICA -->
-<audio id="music" loop>
-  <source src="https://cdn.pixabay.com/audio/2022/10/30/audio_1c5c7e0bda.mp3" type="audio/mpeg">
-</audio>
-
 <!-- MENÚ -->
 <div id="menu" class="screen active">
   <h1>🌙 Sudoku de mi Lunita</h1>
@@ -152,8 +147,6 @@ h1 {
 </div>
 
 <script>
-const music = document.getElementById("music");
-
 function show(id){
   document.querySelectorAll(".screen")
     .forEach(s=>s.classList.remove("active"));
@@ -161,7 +154,6 @@ function show(id){
 }
 
 function start(n){
-  music.play();
   show("lvl"+n);
 }
 
