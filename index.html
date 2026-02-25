@@ -283,7 +283,7 @@ button:hover { background-color: #81d4fa; transform: scale(1.05); }
   <img id="homeImage" src="Imagenes/foto3.jpg" alt="Foto romántica">
   <button id="playBtn">🎮 Jugar</button>
 
-  <!-- CONTADOR -->
+ <!-- CONTADOR -->
   <div id="loveCounter">
     <h3>💗 Nuestro tiempo juntos 💗</h3>
     <div class="counterBox">
@@ -308,7 +308,6 @@ button:hover { background-color: #81d4fa; transform: scale(1.05); }
     <p>Cuando estoy contigo me siento seguro y feliz, siempre que salimos te observo me encanta admirar tu belleza, siempre quiero estar a tu lado 💕</p>
     <img src="Imagenes/foto2.jpg" alt="Foto romántica">
     <p>Siempre guardo y recuerdo los momentos que hemos pasado juntos, aunque no sean muchos, siempre me haces sacar la sonrisa de tontito y bobo jiji. Regresa al inicio 😼</p>
-    <audio id="loveSong" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop></audio>
     <button id="closeBtn">Cerrar ❤️</button>
   </div>
 </div>
@@ -348,7 +347,6 @@ const openBtn = document.getElementById("openLetterBtn");
 const home = document.getElementById("homeScreen");
 const overlay = document.getElementById("letterOverlay");
 const closeBtn = document.getElementById("closeBtn");
-const song = document.getElementById("loveSong");
 const confettiContainer = document.getElementById("confettiContainer");
 const playBtn = document.getElementById("playBtn");
 
@@ -374,7 +372,6 @@ openBtn.addEventListener("click", ()=>{
     openBtn.style.transform = 'translate(0,0)';
     home.classList.add("hidden");
     overlay.classList.add("active");
-    song.play();
 
     const confettiInterval = setInterval(()=>{
       const c = document.createElement('div');
@@ -396,7 +393,6 @@ openBtn.addEventListener("click", ()=>{
 closeBtn.addEventListener("click", ()=>{
   overlay.classList.remove("active");
   home.classList.remove("hidden");
-  song.pause();
   document.querySelectorAll('.floating-heart, .fallingHeart, .confetti').forEach(h=>h.remove());
   clickCount = 0;
   playBtn.style.display = 'inline-block';
@@ -452,4 +448,5 @@ function createConfetti(x, y){
 </script>
 </body>
 </html>
+
 
